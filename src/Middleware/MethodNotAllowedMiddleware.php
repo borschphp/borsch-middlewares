@@ -24,13 +24,8 @@ class MethodNotAllowedMiddleware implements MiddlewareInterface
             return $handler->handle($request);
         }
 
-        $response = new Response();
-
-        return $response
-            ->withStatus(405, 'Method Not Allowed')
-            ->withHeader(
-                'Allow',
-                implode(',', $route_result->getAllowedMethods())
-            );
+        return new Response(status: 405, headers: [
+            'Allow' => implode(',', $route_result->getAllowedMethods())
+        ]);
     }
 }

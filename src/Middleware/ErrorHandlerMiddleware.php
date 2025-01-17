@@ -2,8 +2,7 @@
 
 namespace Borsch\Middleware;
 
-use Borsch\Formatter\HtmlFormatter;
-use Borsch\Formatter\JsonFormatter;
+use Borsch\Formatter\FormatterInterface;
 use ErrorException;
 use Laminas\Diactoros\Response;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
@@ -17,11 +16,11 @@ use Throwable;
 class ErrorHandlerMiddleware implements MiddlewareInterface
 {
 
-    /** @var callable[] $listeners */
-    protected array $listeners = [];
-
-    /** @var callable $formatter */
-    protected $formatter;
+    public function __construct(
+        protected FormatterInterface $formatter,
+        /** @var callable[] $listeners */
+        protected array $listeners = []
+    ) {}
 
     /**
      * @param ServerRequestInterface $request
@@ -37,11 +36,7 @@ class ErrorHandlerMiddleware implements MiddlewareInterface
         } catch (Throwable $throwable) {
             $this->callListeners($throwable, $request);
 
-            $formatter = str_starts_with($request->getUri()->getPath(), '/api/') ?
-                new JsonFormatter() : // ProblemDetails
-                new HtmlFormatter();  // Whoops
-
-            $response = $formatter(
+            $response = $this->formatter->format(
                 $this->getResponseWithStatusCode($throwable),
                 $throwable,
                 $request
@@ -70,7 +65,7 @@ class ErrorHandlerMiddleware implements MiddlewareInterface
      */
     protected function setErrorHandler(): void
     {
-        set_error_handler(function(int $errno, string $errstr, string $errfile, int $errline): bool {
+        set_error_handler(static function(int $errno, string $errstr, string $errfile, int $errline): bool {
             if (!(error_reporting() & $errno)) {
                 // error_reporting does not include this error
                 return true;
@@ -98,13 +93,13 @@ class ErrorHandlerMiddleware implements MiddlewareInterface
      */
     protected function getResponseWithStatusCode(Throwable $throwable): ResponseInterface
     {
-        return (new Response())->withStatus(
-            filter_var($throwable->getCode(), FILTER_VALIDATE_INT, [
-                'options' => [
-                    'min_range' => 400,
-                    'max_range' => 599
-                ]
-            ]) ?: 500
-        );
+        $status_code = filter_var($throwable->getCode(), FILTER_VALIDATE_INT, [
+            'options' => [
+                'min_range' => 400,
+                'max_range' => 599
+            ]
+        ]) ?: 500;
+
+        return new Response(status: $status_code);
     }
 }

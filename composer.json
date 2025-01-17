@@ -1,46 +1,49 @@
 {
-    "name": "borschphp/borsch-middlewares",
-    "description": "A curated list of middleware for Borsch Framework",
-    "license": "MIT",
-    "keywords": [
-        "borsch",
-        "framework",
-        "middleware",
-        "psr-15"
-    ],
-    "authors": [
-        {
-            "name": "Alexandre DEBUSSCHERE",
-            "email": "alexandre@kosmonaft.dev"
-        }
-    ],
-    "autoload": {
-        "psr-4": {
-            "Borsch\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "AppTest\\": "tests/"
-        }
-    },
-    "require": {
-        "php": "^8.2"
-    },
-    "require-dev": {
-        "psr/http-message": "^1||^2",
-        "psr/http-factory": "^1",
-        "psr/http-server-handler": "^1",
-        "psr/http-server-middleware": "^1",
-        "borschphp/router": "^2",
-        "laminas/laminas-diactoros": "^3",
-        "monolog/monolog": "^2 || ^3",
-        "pestphp/pest": "^3",
-        "phpstan/phpstan": "^2"
-    },
-    "config": {
-        "allow-plugins": {
-            "pestphp/pest-plugin": true
-        }
+  "name": "borschphp/borsch-middlewares",
+  "description": "A curated list of middleware for Borsch Framework",
+  "license": "MIT",
+  "keywords": [
+    "borsch",
+    "framework",
+    "middleware",
+    "psr-15"
+  ],
+  "authors": [
+    {
+      "name": "Alexandre DEBUSSCHERE",
+      "email": "alexandre@kosmonaft.dev"
     }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Borsch\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "AppTest\\": "tests/"
+    }
+  },
+  "require": {
+    "php": "^8.2",
+    "ext-json": "*",
+    "ext-libxml": "*",
+    "ext-simplexml": "*"
+  },
+  "require-dev": {
+    "psr/http-message": "^1||^2",
+    "psr/http-factory": "^1",
+    "psr/http-server-handler": "^1",
+    "psr/http-server-middleware": "^1",
+    "borschphp/router": "^2",
+    "laminas/laminas-diactoros": "^3",
+    "monolog/monolog": "^2 || ^3",
+    "pestphp/pest": "^3",
+    "phpstan/phpstan": "^2"
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  }
 }

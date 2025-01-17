@@ -2,6 +2,7 @@
 
 namespace Borsch\Formatter;
 
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;
 use Whoops\Handler\PrettyPageHandler;
@@ -11,14 +12,14 @@ use Whoops\Run as Whoops;
  * Class HtmlFormatter
  * @package Borsch\Formatter
  */
-class HtmlFormatter
+class HtmlFormatter implements FormatterInterface
 {
 
     public function __construct(
         protected bool $is_production = true
     ) {}
 
-    public function __invoke(ResponseInterface $response, Throwable $throwable): ResponseInterface
+    public function format(ResponseInterface $response, Throwable $throwable, RequestInterface $request): ResponseInterface
     {
         $body = $this->getWhoopsHandledException($throwable);
 

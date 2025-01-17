@@ -2,8 +2,7 @@
 
 namespace Borsch\Middleware;
 
-use Borsch\Exception\ProblemDetailsException;
-use Laminas\Diactoros\Response\HtmlResponse;
+use Closure;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 
@@ -17,21 +16,19 @@ use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 class NotFoundHandlerMiddleware implements MiddlewareInterface
 {
 
-    public function __construct() {}
+    public function __construct(
+        protected Closure|ResponseInterface $response
+    ) {}
 
     /**
      * @inheritDoc
-     * @throws ProblemDetailsException
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        if (str_starts_with($request->getUri()->getPath(), '/api/')) {
-            throw new ProblemDetailsException(
-                sprintf('No resource found for "%s"', $request->getUri()->getPath()),
-                404
-            );
+        if ($this->response instanceof ResponseInterface) {
+            return $this->response;
         }
 
-        return new HtmlResponse('Not Found', 404);
+        return call_user_func($this->response, $request, $handler);
     }
 }

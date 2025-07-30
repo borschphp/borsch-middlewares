@@ -2,7 +2,7 @@
 
 namespace Borsch\Middleware;
 
-use Borsch\Router\RouteResultInterface;
+use Borsch\Router\Contract\RouteResultInterface;
 use Laminas\Diactoros\Response;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};

@@ -1,7 +1,7 @@
 <?php
 
 use Borsch\Middleware\DispatchMiddleware;
-use Borsch\Router\RouteResultInterface;
+use Borsch\Router\Contract\RouteResultInterface;
 use Laminas\Diactoros\{Response, ServerRequest};
 use Psr\Http\Server\RequestHandlerInterface;
 

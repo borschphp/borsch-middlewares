@@ -1,7 +1,8 @@
 <?php
 
 use Borsch\Middleware\ImplicitOptionsMiddleware;
-use Borsch\Router\RouteResultInterface;
+use Borsch\Router\Contract\RouteInterface;
+use Borsch\Router\Contract\RouteResultInterface;
 use Laminas\Diactoros\{Response, ServerRequest};
 use Psr\Http\Server\RequestHandlerInterface;
 
@@ -40,7 +41,7 @@ test('Process OPTION request with matched route', function () {
     $routeResult = $this->createMock(RouteResultInterface::class);
     $routeResult->expects($this->once())
         ->method('getMatchedRoute')
-        ->willReturn(true);
+        ->willReturn($this->createMock(RouteInterface::class));
 
     $request = (new ServerRequest())
         ->withMethod('OPTIONS')

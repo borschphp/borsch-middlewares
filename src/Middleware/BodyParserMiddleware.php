@@ -97,7 +97,7 @@ class BodyParserMiddleware implements MiddlewareInterface
      */
     protected function getUrlEncodedParsedBody(ServerRequestInterface $request): ServerRequestInterface
     {
-        $data = null;
+        $data = [];
         parse_str((string)$request->getBody(), $data);
 
         return $request->withParsedBody($data);

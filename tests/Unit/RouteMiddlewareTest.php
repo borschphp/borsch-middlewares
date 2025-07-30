@@ -1,7 +1,10 @@
 <?php
 
 use Borsch\Middleware\RouteMiddleware;
-use Borsch\Router\{RouteInterface, RouteResult, RouteResultInterface, RouterInterface};
+use Borsch\Router\Contract\RouteInterface;
+use Borsch\Router\Contract\RouteResultInterface;
+use Borsch\Router\Contract\RouterInterface;
+use Borsch\Router\Result\RouteResult;
 use Laminas\Diactoros\{Response, ServerRequest};
 use Psr\Http\Server\RequestHandlerInterface;
 

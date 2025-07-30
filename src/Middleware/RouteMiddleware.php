@@ -2,7 +2,8 @@
 
 namespace Borsch\Middleware;
 
-use Borsch\Router\{RouteResultInterface, RouterInterface};
+use Borsch\Router\Contract\RouteResultInterface;
+use Borsch\Router\Contract\RouterInterface;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 

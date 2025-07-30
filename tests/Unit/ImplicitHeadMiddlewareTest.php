@@ -1,8 +1,9 @@
 <?php
 
 use Borsch\Middleware\ImplicitHeadMiddleware;
-use Borsch\Router\RouteResultInterface;
-use Borsch\Router\RouterInterface;
+use Borsch\Router\Contract\RouteInterface;
+use Borsch\Router\Contract\RouteResultInterface;
+use Borsch\Router\Contract\RouterInterface;
 use Laminas\Diactoros\{Response, ServerRequest};
 use Psr\Http\Server\RequestHandlerInterface;
 
@@ -42,7 +43,7 @@ test('Process HEAD request with matched route', function () {
     $routeResult = $this->createMock(RouteResultInterface::class);
     $routeResult->expects($this->once())
         ->method('getMatchedRoute')
-        ->willReturn(true);
+        ->willReturn($this->createMock(RouteInterface::class));
 
     $request = (new ServerRequest())
         ->withMethod('HEAD')

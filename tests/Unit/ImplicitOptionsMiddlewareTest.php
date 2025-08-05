@@ -1,18 +1,19 @@
 <?php
 
 use Borsch\Middleware\ImplicitOptionsMiddleware;
-use Borsch\Router\Contract\RouteInterface;
-use Borsch\Router\Contract\RouteResultInterface;
-use Laminas\Diactoros\{Response, ServerRequest};
+use Borsch\Router\Contract\{RouteInterface, RouteResultInterface};
+use Borsch\Http\{Factory\ResponseFactory, Response, ServerRequest, Uri};
 use Psr\Http\Server\RequestHandlerInterface;
 
+covers(ImplicitOptionsMiddleware::class);
+
 beforeEach(function () {
-    $this->middleware = new ImplicitOptionsMiddleware();
+    $this->middleware = new ImplicitOptionsMiddleware(new ResponseFactory());
     $this->handler = $this->createMock(RequestHandlerInterface::class);
 });
 
 test('Process non OPTION request', function () {
-    $request = (new ServerRequest())->withMethod('GET');
+    $request = (new ServerRequest('GET', new Uri('/')))->withMethod('GET');
 
     $this->handler->expects($this->once())
         ->method('handle')
@@ -25,7 +26,7 @@ test('Process non OPTION request', function () {
 });
 
 test('Process OPTION request without RouteResult', function () {
-    $request = (new ServerRequest())->withMethod('OPTIONS');
+    $request = (new ServerRequest('GET', new Uri('/')))->withMethod('OPTIONS');
 
     $this->handler->expects($this->once())
         ->method('handle')
@@ -43,7 +44,7 @@ test('Process OPTION request with matched route', function () {
         ->method('getMatchedRoute')
         ->willReturn($this->createMock(RouteInterface::class));
 
-    $request = (new ServerRequest())
+    $request = (new ServerRequest('GET', new Uri('/')))
         ->withMethod('OPTIONS')
         ->withAttribute(RouteResultInterface::class, $routeResult);
 

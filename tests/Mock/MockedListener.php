@@ -2,7 +2,7 @@
 
 namespace AppTest\Mock;
 
-use Laminas\Diactoros\ServerRequest;
+use Borsch\Http\ServerRequest;
 use Throwable;
 
 class MockedListener

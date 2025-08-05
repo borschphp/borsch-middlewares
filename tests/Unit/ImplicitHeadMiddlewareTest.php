@@ -1,11 +1,11 @@
 <?php
 
 use Borsch\Middleware\ImplicitHeadMiddleware;
-use Borsch\Router\Contract\RouteInterface;
-use Borsch\Router\Contract\RouteResultInterface;
-use Borsch\Router\Contract\RouterInterface;
-use Laminas\Diactoros\{Response, ServerRequest};
+use Borsch\Router\Contract\{RouteInterface, RouteResultInterface, RouterInterface};
+use Borsch\Http\{Response, ServerRequest, Uri};
 use Psr\Http\Server\RequestHandlerInterface;
+
+covers(ImplicitHeadMiddleware::class);
 
 beforeEach(function () {
     $this->router = $this->createMock(RouterInterface::class);
@@ -14,7 +14,7 @@ beforeEach(function () {
 });
 
 test('Process non HEAD request', function () {
-    $request = (new ServerRequest())->withMethod('GET');
+    $request = (new ServerRequest('GET', new Uri('/')))->withMethod('GET');
 
     $this->handler->expects($this->once())
         ->method('handle')
@@ -27,7 +27,7 @@ test('Process non HEAD request', function () {
 });
 
 test('Process HEAD request without RouteResult', function () {
-    $request = (new ServerRequest())->withMethod('HEAD');
+    $request = (new ServerRequest('GET', new Uri('/')))->withMethod('HEAD');
 
     $this->handler->expects($this->once())
         ->method('handle')
@@ -45,7 +45,7 @@ test('Process HEAD request with matched route', function () {
         ->method('getMatchedRoute')
         ->willReturn($this->createMock(RouteInterface::class));
 
-    $request = (new ServerRequest())
+    $request = (new ServerRequest('GET', new Uri('/')))
         ->withMethod('HEAD')
         ->withAttribute(RouteResultInterface::class, $routeResult);
 

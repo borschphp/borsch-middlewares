@@ -4,9 +4,10 @@ namespace Borsch\Middleware;
 
 use Borsch\Router\Contract\RouteResultInterface;
 use Borsch\Router\Contract\RouterInterface;
-use Laminas\Diactoros\Stream;
+use Borsch\Http\Stream;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
+use function fopen;
 
 /**
  * Class ImplicitHeadMiddleware
@@ -52,6 +53,6 @@ class ImplicitHeadMiddleware implements MiddlewareInterface
 
         $response = $handler->handle($request);
 
-        return $response->withBody(new Stream(''));
+        return $response->withBody(new Stream(fopen('php://temp', 'r+')));
     }
 }

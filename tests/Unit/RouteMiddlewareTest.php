@@ -1,11 +1,9 @@
 <?php
 
 use Borsch\Middleware\RouteMiddleware;
-use Borsch\Router\Contract\RouteInterface;
-use Borsch\Router\Contract\RouteResultInterface;
-use Borsch\Router\Contract\RouterInterface;
+use Borsch\Router\Contract\{RouteInterface, RouteResultInterface, RouterInterface};
 use Borsch\Router\Result\RouteResult;
-use Laminas\Diactoros\{Response, ServerRequest};
+use Borsch\Http\{Response, ServerRequest, Uri};
 use Psr\Http\Server\RequestHandlerInterface;
 
 beforeEach(function () {
@@ -21,7 +19,7 @@ test('Process with matched route', function () {
         ->method('match')
         ->willReturn($routeResult);
 
-    $request = new ServerRequest();
+    $request = new ServerRequest('GET', new Uri('/'));
     $request = $request->withAttribute(RouteResultInterface::class, $routeResult);
 
     $this->handler->expects($this->once())
@@ -41,7 +39,7 @@ test('Process with unmatched route', function () {
         ->method('match')
         ->willReturn($routeResult);
 
-    $request = new ServerRequest();
+    $request = new ServerRequest('GET', new Uri('/'));
     $request = $request->withAttribute(RouteResultInterface::class, $routeResult);
 
     $this->handler->expects($this->once())

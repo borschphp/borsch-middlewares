@@ -5,6 +5,7 @@ namespace Borsch\Middleware;
 use Closure;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
+use function call_user_func;
 
 /**
  * Class NotFoundHandlerMiddleware

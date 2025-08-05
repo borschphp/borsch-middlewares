@@ -2,8 +2,10 @@
 
 use Borsch\Middleware\DispatchMiddleware;
 use Borsch\Router\Contract\RouteResultInterface;
-use Laminas\Diactoros\{Response, ServerRequest};
+use Borsch\Http\{Response, ServerRequest, Uri};
 use Psr\Http\Server\RequestHandlerInterface;
+
+covers(DispatchMiddleware::class);
 
 beforeEach(function () {
     $this->middleware = new DispatchMiddleware();
@@ -16,7 +18,7 @@ test('RouteResult is processed', function () {
         ->method('process')
         ->willReturn(new Response());
 
-    $request = (new ServerRequest())
+    $request = (new ServerRequest('GET', new Uri('/')))
         ->withAttribute(RouteResultInterface::class, $routeResult);
 
     $response = $this->middleware->process($request, $this->handler);
@@ -30,7 +32,7 @@ test('Handler is called when no RouteResult', function () {
         ->method('process')
         ->willReturn(new Response());
 
-    $request = (new ServerRequest())
+    $request = (new ServerRequest('GET', new Uri('/')))
         ->withAttribute(RouteResultInterface::class, $routeResult);
 
     $response = $this->middleware->process($request, $this->handler);

@@ -2,9 +2,13 @@
 
 namespace Borsch\Middleware;
 
-use Laminas\Diactoros\{Stream, UploadedFile};
-use Psr\Http\Message\{ResponseInterface, ServerRequestInterface, UploadedFileInterface};
+use Psr\Http\Message\{ResponseInterface,
+    ServerRequestInterface,
+    StreamFactoryInterface,
+    UploadedFileFactoryInterface,
+    UploadedFileInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
+use function count, is_array, array_keys, array_combine, array_column;
 
 /**
  * Class UploadedFilesParserMiddleware
@@ -12,6 +16,11 @@ use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
  */
 class UploadedFilesParserMiddleware implements MiddlewareInterface
 {
+
+    public function __construct(
+        protected UploadedFileFactoryInterface $uploaded_file_factory,
+        protected StreamFactoryInterface $stream_factory
+    ) {}
 
     /**
      * @param ServerRequestInterface $request
@@ -41,8 +50,8 @@ class UploadedFilesParserMiddleware implements MiddlewareInterface
         $new_file = [];
 
         if (isset($uploaded_files['tmp_name']) && !is_array($uploaded_files['tmp_name'])) {
-            $new_file = new UploadedFile(
-                new Stream(fopen($uploaded_files['tmp_name'], 'r')),
+            $new_file = $this->uploaded_file_factory->createUploadedFile(
+                $this->stream_factory->createStreamFromResource(fopen($uploaded_files['tmp_name'], 'r')),
                 $uploaded_files['size'],
                 $uploaded_files['error'],
                 $uploaded_files['name'],
@@ -50,8 +59,8 @@ class UploadedFilesParserMiddleware implements MiddlewareInterface
             );
         } elseif (isset($uploaded_files['tmp_name'][0])) {
             foreach ($uploaded_files['tmp_name'] as $key => $value) {
-                $new_file[$key] = new UploadedFile(
-                    new Stream(fopen($uploaded_files['tmp_name'][$key], 'r')),
+                $new_file[$key] = $this->uploaded_file_factory->createUploadedFile(
+                    $this->stream_factory->createStreamFromResource(fopen($uploaded_files['tmp_name'][$key], 'r')),
                     $uploaded_files['size'][$key],
                     $uploaded_files['error'][$key],
                     $uploaded_files['name'][$key],

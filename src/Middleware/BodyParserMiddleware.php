@@ -5,6 +5,7 @@ namespace Borsch\Middleware;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 use SimpleXMLElement;
+use function libxml_use_internal_errors, simplexml_load_string, libxml_clear_errors;
 
 /**
  * Class BodyParserMiddleware

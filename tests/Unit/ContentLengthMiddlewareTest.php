@@ -1,8 +1,10 @@
 <?php
 
 use Borsch\Middleware\ContentLengthMiddleware;
-use Laminas\Diactoros\{Response, ServerRequest};
+use Borsch\Http\{Response, ServerRequest, Uri};
 use Psr\Http\Server\RequestHandlerInterface;
+
+covers(ContentLengthMiddleware::class);
 
 beforeEach(function () {
     $this->middleware = new ContentLengthMiddleware();
@@ -20,14 +22,14 @@ test('Content-Length header is added to the response', function () {
         ->method('handle')
         ->willReturn($response);
 
-    $response = $this->middleware->process(new ServerRequest(), $this->handler);
+    $response = $this->middleware->process(new ServerRequest('GET', new Uri('/')), $this->handler);
 
     expect($response->hasHeader('Content-Length'))->toBeTrue()
         ->and((int)$response->getHeaderLine('Content-Length'))->toBe(strlen($content));
 });
 
 test('Content-Length header is not overwritten', function () {
-    $response = (new Response())->withHeader('Content-Length', 42);
+    $response = (new Response())->withHeader('Content-Length', '42');
     $response->getBody()->write('Hello, World!');
 
     $this->handler
@@ -35,7 +37,7 @@ test('Content-Length header is not overwritten', function () {
         ->method('handle')
         ->willReturn($response);
 
-    $response = $this->middleware->process(new ServerRequest(), $this->handler);
+    $response = $this->middleware->process(new ServerRequest('GET', new Uri('/')), $this->handler);
 
     expect($response->hasHeader('Content-Length'))->toBeTrue()
         ->and((int)$response->getHeaderLine('Content-Length'))->toBe(42);
@@ -48,7 +50,7 @@ test('Content-Length is not set for empty body', function () {
         ->method('handle')
         ->willReturn($response);
 
-    $request = new ServerRequest();
+    $request = new ServerRequest('GET', new Uri('/'));
     $response = $this->middleware->process($request, $this->handler);
 
     expect($response->hasHeader('Content-Length'))->toBeTrue()

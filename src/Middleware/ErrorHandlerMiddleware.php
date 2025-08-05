@@ -2,9 +2,7 @@
 
 namespace Borsch\Middleware;
 
-use Borsch\Formatter\FormatterInterface;
 use ErrorException;
-use Laminas\Diactoros\Response;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 use Throwable;
@@ -16,11 +14,16 @@ use Throwable;
 class ErrorHandlerMiddleware implements MiddlewareInterface
 {
 
+    /** @var callable(Throwable $e, ServerRequestInterface $request): ResponseInterface */
+    protected $error_handler;
+
     public function __construct(
-        protected FormatterInterface $formatter,
+        callable $error_handler,
         /** @var callable[] $listeners */
         protected array $listeners = []
-    ) {}
+    ) {
+        $this->error_handler = $error_handler;
+    }
 
     /**
      * @param ServerRequestInterface $request
@@ -36,11 +39,7 @@ class ErrorHandlerMiddleware implements MiddlewareInterface
         } catch (Throwable $throwable) {
             $this->callListeners($throwable, $request);
 
-            $response = $this->formatter->format(
-                $this->getResponseWithStatusCode($throwable),
-                $throwable,
-                $request
-            );
+            $response = call_user_func($this->error_handler, $throwable, $request);
         }
 
         restore_error_handler();
@@ -85,21 +84,5 @@ class ErrorHandlerMiddleware implements MiddlewareInterface
         foreach ($this->listeners as $listener) {
             $listener($throwable, $request);
         }
-    }
-
-    /**
-     * @param Throwable $throwable
-     * @return ResponseInterface
-     */
-    protected function getResponseWithStatusCode(Throwable $throwable): ResponseInterface
-    {
-        $status_code = filter_var($throwable->getCode(), FILTER_VALIDATE_INT, [
-            'options' => [
-                'min_range' => 400,
-                'max_range' => 599
-            ]
-        ]) ?: 500;
-
-        return new Response(status: $status_code);
     }
 }

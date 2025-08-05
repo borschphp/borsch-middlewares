@@ -2,11 +2,13 @@
 
 use Borsch\Middleware\MethodNotAllowedMiddleware;
 use Borsch\Router\Contract\RouteResultInterface;
-use Laminas\Diactoros\{Response, ServerRequest};
+use Borsch\Http\{Factory\ResponseFactory, Response, ServerRequest, Uri};
 use Psr\Http\Server\RequestHandlerInterface;
 
+covers(MethodNotAllowedMiddleware::class);
+
 beforeEach(function () {
-    $this->middleware = new MethodNotAllowedMiddleware();
+    $this->middleware = new MethodNotAllowedMiddleware(new ResponseFactory());
     $this->handler = $this->createMock(RequestHandlerInterface::class);
 });
 
@@ -16,7 +18,7 @@ test('Process request with allowed method', function () {
         ->method('isMethodFailure')
         ->willReturn(false);
 
-    $request = (new ServerRequest())
+    $request = (new ServerRequest('GET', new Uri('/')))
         ->withAttribute(RouteResultInterface::class, $routeResult);
 
     $this->handler->expects($this->once())
@@ -38,7 +40,7 @@ test('Process request with method not allowed', function () {
         ->method('getAllowedMethods')
         ->willReturn(['GET', 'POST']);
 
-    $request = (new ServerRequest())
+    $request = (new ServerRequest('GET', new Uri('/')))
         ->withAttribute(RouteResultInterface::class, $routeResult);
 
     $response = $this->middleware->process($request, $this->handler);

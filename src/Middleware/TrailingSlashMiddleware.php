@@ -2,8 +2,7 @@
 
 namespace Borsch\Middleware;
 
-use Laminas\Diactoros\Response\RedirectResponse;
-use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
+use Psr\Http\Message\{ResponseFactoryInterface, ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 
 /**
@@ -12,6 +11,10 @@ use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
  */
 class TrailingSlashMiddleware implements MiddlewareInterface
 {
+
+    public function __construct(
+        protected ResponseFactoryInterface $response_factory,
+    ) {}
 
     /**
      * @inheritDoc
@@ -27,7 +30,8 @@ class TrailingSlashMiddleware implements MiddlewareInterface
             $uri = $uri->withPath(rtrim($path, '/'));
 
             if ($request->getMethod() == 'GET') {
-                return new RedirectResponse((string)$uri, 301);
+                return $this->response_factory->createResponse(301)
+                    ->withHeader('Location', (string)$uri);
             }
 
             $request = $request->withUri($uri);

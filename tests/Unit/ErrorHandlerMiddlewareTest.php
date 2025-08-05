@@ -1,14 +1,15 @@
 <?php
 
 use AppTest\Mock\MockedListener;
-use Borsch\Formatter\FormatterInterface;
 use Borsch\Middleware\ErrorHandlerMiddleware;
-use Laminas\Diactoros\{Response, ServerRequest};
+use Psr\Http\Message\ResponseInterface;
+use Borsch\Http\{Response, ServerRequest, Uri};
 use Psr\Http\Server\RequestHandlerInterface;
 
+covers(ErrorHandlerMiddleware::class);
+
 beforeEach(function () {
-    $this->formatter = $this->createMock(FormatterInterface::class);
-    $this->middleware = new ErrorHandlerMiddleware($this->formatter);
+    $this->middleware = new ErrorHandlerMiddleware(fn () => new Response\TextResponse('Error occurred'));
     $this->handler = $this->createMock(RequestHandlerInterface::class);
 });
 
@@ -19,7 +20,7 @@ test('Handle request successfully', function () {
         ->method('handle')
         ->willReturn($response);
 
-    $request = new ServerRequest();
+    $request = new ServerRequest('GET', new Uri('/'));
     $result = $this->middleware->process($request, $this->handler);
 
     expect($result)->toBe($response);
@@ -34,15 +35,10 @@ test('Handler request with exception', function () {
 
     $formattedResponse = new Response();
 
-    $this->formatter->expects($this->once())
-        ->method('format')
-        ->with($this->isInstanceOf(Response::class), $exception, $this->isInstanceOf(ServerRequest::class))
-        ->willReturn($formattedResponse);
-
-    $request = new ServerRequest();
+    $request = new ServerRequest('GET', new Uri('/'));
     $result = $this->middleware->process($request, $this->handler);
 
-    expect($result)->toBe($formattedResponse);
+    expect($result)->toBeInstanceOf(ResponseInterface::class);
 });
 
 test('Listeners are called on exception', function () {
@@ -59,11 +55,6 @@ test('Listeners are called on exception', function () {
 
     $this->middleware->addListener($listener);
 
-    $formattedResponse = new Response();
-    $this->formatter->expects($this->once())
-        ->method('format')
-        ->willReturn($formattedResponse);
-
-    $request = new ServerRequest();
+    $request = new ServerRequest('GET', new Uri('/'));
     $this->middleware->process($request, $this->handler);
 });
